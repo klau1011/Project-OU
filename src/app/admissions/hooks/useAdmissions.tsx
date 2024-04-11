@@ -31,7 +31,7 @@ const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
   }
 
   let filteredAdmissions = filteredAdmissionsBySchool;
-  if (query && query !== undefined) {
+  if (query && typeof query != "undefined") {
     filteredAdmissions = filteredAdmissionsBySchool.filter((admission: Admission) =>
       admission.Program.toLowerCase().includes(query.toLowerCase()),
     );
