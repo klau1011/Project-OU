@@ -1,10 +1,9 @@
 "use server";
 
-import useS3 from "@/lib/db/s3";
+import s3 from "@/lib/db/s3";
 
-
+const { s3Client, PutObjectCommand } = s3();
 export async function uploadFile(userId: string, formData: FormData) {
-  const { s3Client, PutObjectCommand } = useS3();
   const attachmentFile = formData.get("attachmentFile") as File;
 
 const buffer = Buffer.from(await attachmentFile.arrayBuffer());
