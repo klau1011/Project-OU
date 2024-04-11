@@ -4,6 +4,7 @@ import prisma from "@/lib/db/prisma";
 import { School2 } from "lucide-react";
 import { altUniversitiesNames } from "@/data/universities";
 import useAdmissions from "./hooks/useAdmissions";
+import { Admission } from "@prisma/client";
 
 export interface SearchParamsInterface {
   query?: string;
@@ -47,7 +48,7 @@ export default async function Page({
           
         )}
       <div className="sm: grid grid-cols-2 gap-8 lg:grid-cols-3">
-        {filteredAdmissions?.map((admission) => {
+        {filteredAdmissions?.map((admission: Admission) => {
           return <AdmissionCard key={admission.id} admission={admission} />;
         })}
       </div>

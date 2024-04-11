@@ -2,6 +2,7 @@ import prisma from "@/lib/db/prisma";
 import { SearchParamsInterface } from "../page";
 import { altUniversitiesNames } from "@/data/universities";
 import { redis } from "@/lib/db/redis";
+import { Admission } from "@prisma/client";
 
 const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
   let admissions: any = await redis.get("allAdmissions");
@@ -22,7 +23,7 @@ const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
   if (university) {
     const schoolCriteria = altUniversitiesNames[university];
     filteredAdmissionsBySchool = filteredAdmissionsBySchool.filter(
-      (admission) =>
+      (admission: Admission) =>
         schoolCriteria.some((criteria) =>
           admission.School.toLowerCase().includes(criteria),
         ),
@@ -31,14 +32,14 @@ const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
 
   let filteredAdmissions = filteredAdmissionsBySchool;
   if (query) {
-    filteredAdmissions = filteredAdmissionsBySchool.filter((admission) =>
+    filteredAdmissions = filteredAdmissionsBySchool.filter((admission: Admission) =>
       admission.Program.toLowerCase().includes(query.toLowerCase()),
     );
   }
 
   const totalAverage = (
-    filteredAdmissions.reduce((sum, admission) => {
-      const average = parseFloat(admission.Average);
+    filteredAdmissions.reduce((sum: number, admission: Admission) => {
+      const average = admission.Average
       return !isNaN(average) ? sum + average : sum;
     }, 0) / filteredAdmissions.length
   ).toFixed(2);
