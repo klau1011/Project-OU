@@ -13,8 +13,9 @@ datasource db {
 model Tip {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
-  content   String?
+  content   String
   userId    String
+  attachmentFileUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -26,7 +27,6 @@ model Admission {
   School     String
   Program   String
   Average    Float
-  createdAt DateTime @default(now())
 
   @@map("applicants_data")
 }

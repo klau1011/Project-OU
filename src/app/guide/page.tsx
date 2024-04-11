@@ -65,7 +65,7 @@ const page = () => {
             <li>
               Have you submitted an English assignment and were confident in
               your work after looking it over a million times, only to get it
-              back with a bunch of silly errors you can't believed you didn't
+              back with a bunch of silly errors you can't believe you didn't
               notice?
             </li>
             <li>
