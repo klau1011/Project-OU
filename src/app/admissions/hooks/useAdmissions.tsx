@@ -15,7 +15,7 @@ const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
   }
     
 
-  if (query === "all") {
+  if (!query || query === "all") {
     query = "";
   }
 
