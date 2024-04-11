@@ -19,7 +19,7 @@ export default async function Page({
   const query = searchParams?.query || "";
   const { filteredAdmissions, totalAverage } = await useAdmissions({
     query,
-    university: searchParams?.university,
+    university: searchParams?.university || "all",
   });
 
   return (
@@ -39,13 +39,12 @@ export default async function Page({
       {filteredAdmissions.length > 0 &&
         query &&
         !Number.isNaN(totalAverage) && (
-          <div className="left-1 mb-5 text-sm font-medium leading-none flex flex-col gap-1.5" >
-          <p >
-            Average for search "{query}" : {totalAverage} % 
-          </p>
-          <p>Count: {filteredAdmissions.length}</p>
+          <div className="left-1 mb-5 flex flex-col gap-1.5 text-sm font-medium leading-none">
+            <p>
+              Average for search "{query}" : {totalAverage} %
+            </p>
+            <p>Count: {filteredAdmissions.length}</p>
           </div>
-          
         )}
       <div className="sm: grid grid-cols-2 gap-8 lg:grid-cols-3">
         {filteredAdmissions?.map((admission: Admission) => {

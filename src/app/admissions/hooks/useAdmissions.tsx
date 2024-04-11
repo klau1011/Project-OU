@@ -4,7 +4,11 @@ import { altUniversitiesNames } from "@/data/universities";
 import { redis } from "@/lib/db/redis";
 import { Admission } from "@prisma/client";
 
-const useAdmissions = async ({ query, university }: SearchParamsInterface) => {
+
+const useAdmissions = async ({ query, university }: {
+  query: string;
+  university: string;
+}) => {
   let admissions: any = await redis.get("allAdmissions");
 
   if (!admissions) {
