@@ -26,7 +26,7 @@ const page = () => {
         </li>
         <li>
           Begin to look into common supp app questions (requires lots of thought
-          & time but you don't need to figure out the details now)
+          & time but you don&apos;t need to figure out the details now)
         </li>
       </ul>
 
@@ -65,7 +65,7 @@ const page = () => {
             <li>
               Have you submitted an English assignment and were confident in
               your work after looking it over a million times, only to get it
-              back with a bunch of silly errors you can't believe you didn't
+              back with a bunch of silly errors you can&apos;t believe you didn&apos;t
               notice?
             </li>
             <li>
@@ -80,7 +80,7 @@ const page = () => {
         February to May
       </h2>
       <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
-        <li>Congrats, you're half way there!</li>
+        <li>Congrats, you&apos;re half way there!</li>
         <li>
           Something called <i>senioritis</i> will start to devour you. Stay
           focused, your marks likely still matter.
@@ -90,12 +90,12 @@ const page = () => {
           cough UofT for '22) waited until the last week of May.
         </li>
         <li>
-          After semester 2 midterm marks are locked in, marks don't really
+          After semester 2 midterm marks are locked in, marks don&apos;t really
           matter anymore for admission purposes. You can let loose a bit now,
-          but don't be reckless.
+          but don&apos;t be reckless.
           <ul className="ml-6 list-inside list-disc [&>li]:mt-2">
             <li>
-              It's uncommon but people do get rescinded for not meeting
+              It&apos;s uncommon but people do get rescinded for not meeting
               conditionals on their offer.
             </li>
           </ul>
@@ -116,7 +116,7 @@ const page = () => {
           cough UofT for '22) waited until the last week of May.
         </li>
         <li>
-          You're pretty much done! Make the most of your last weeks of high
+          You&apos;re pretty much done! Make the most of your last weeks of high
           school, as you will not see many of these people ever again :'(
         </li>
       </ul>

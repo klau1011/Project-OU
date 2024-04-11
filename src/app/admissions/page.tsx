@@ -10,7 +10,7 @@ export interface SearchParamsInterface {
   university?: string;
 }
 
-export default async function page({
+export default async function Page({
   searchParams,
 }: {
   searchParams?: SearchParamsInterface;
