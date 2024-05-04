@@ -66,9 +66,9 @@ export default function AddEditTipDialog({
     }
 
     if (tipToEdit) {
-      editTip({ id: tipToEdit.id, title: values.title, content: values.content, attachmentFile: uploadedFileUrl });
+      editTip({ id: tipToEdit.id, title: values.title, content: values.content, attachmentFile: uploadedFileUrl});
     } else {
-      addTip(values);
+      addTip({title: values.title, content: values.content, attachmentFile: uploadedFileUrl});
     }
     form.reset();
     setOpen(false);
