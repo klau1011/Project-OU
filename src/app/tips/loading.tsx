@@ -6,10 +6,10 @@ export default function Loading() {
     <>
       <div className="mb-10 mt-5">
         <h1 className="mb-2 flex scroll-m-20 items-center gap-3 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Community tips <FileQuestion size={30} />
+          Community resources and tips <FileQuestion size={30} />
         </h1>
         <p className="text-sm text-muted-foreground">
-          A place for students to share helpful advice based on prior
+          A place for students to share helpful resources and advice based on prior
           experiences
         </p>
       </div>

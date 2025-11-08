@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card";
@@ -15,17 +14,30 @@ interface AdmissionCardProps {
 }
 
 export default function AdmissionCard({ admission }: AdmissionCardProps) {
+  const pct = Number.isFinite(admission.Average) ? admission.Average : 0;
+  const pctLabel = pct.toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+  // clamp for the tiny progress bar
+  const barWidth = Math.max(0, Math.min(100, pct));
+
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-            {admission.Program}
-          </h4>
-          <p>{admission.School}</p>
-        </CardHeader>
-        <CardContent>{Math.round(admission.Average * 100) / 100}%</CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{admission.Program}</CardTitle>
+        <CardDescription className="text-sm">{admission.School}</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <div className="mb-2 text-2xl font-semibold">{pctLabel}%</div>
+
+        <div className="h-2 w-full rounded bg-muted">
+          <div
+            className="h-2 rounded bg-primary"
+            style={{ width: `${barWidth}%` }}
+            aria-label={`Average ${pctLabel} percent`}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

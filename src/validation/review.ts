@@ -1,11 +1,10 @@
 import { z } from "zod";
 
 export const createTipSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
-  content: z.string().min(1, { message: "Content is required" }),
+  title: z.string().min(1),
+  content: z.string().min(1),
   attachmentFile: z.any().optional(),
 });
-
 export type CreateTipSchema = z.infer<typeof createTipSchema>;
 
 export const updateTipSchema = createTipSchema.extend({

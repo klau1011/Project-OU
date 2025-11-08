@@ -21,7 +21,7 @@ export default function Home() {
           <Link href="guide">General guide</Link>
         </Button>
         <Button size="lg" asChild>
-          <Link href="tips">Community tips</Link>
+          <Link href="tips">Community resources</Link>
         </Button>
         <Button size="lg" asChild>
           <Link href="admissions">Admissions Data</Link>

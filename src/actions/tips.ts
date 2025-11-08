@@ -4,95 +4,138 @@ import { tipsIndex } from "@/lib/db/pinecone";
 import prisma from "@/lib/db/prisma";
 import { getEmbeddingForTip } from "@/utils/getEmbeddingForTip";
 import {
-  CreateTipSchema,
+  createTipSchema,
   deleteTipSchema,
   updateTipSchema,
+  CreateTipSchema as CreateTipInputType,
 } from "@/validation/review";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-const { userId } = auth();
+type ActionResult<T> = { ok: true; data: T } | { ok: false; message: string };
 
-const addTip = async ({ title, content, attachmentFile }: CreateTipSchema) => {
-  if (!userId) {
-    return Error("Not authorized");
-  }
+export async function addTip(
+  input: CreateTipInputType
+): Promise<ActionResult<{ id: string }>> {
+  const parse = createTipSchema.safeParse(input);
+  if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const embedding = await getEmbeddingForTip(title, content);
+  const { userId } = auth();
+  if (!userId) return { ok: false, message: "Not authorized" };
 
-  const tip = await prisma.$transaction(async (tx) => {
-    const tip = await tx.tip.create({
+  const { title, content, attachmentFile } = parse.data;
+
+  try {
+    // create db row
+    const tip = await prisma.tip.create({
       data: {
         title,
         content,
         userId,
-        attachmentFileUrl: attachmentFile
+        attachmentFileUrl: attachmentFile ?? null,
       },
+      select: { id: true, title: true, content: true },
     });
 
-    await tipsIndex.upsert([
-      { id: tip.id, values: embedding, metadata: { userId } },
-    ]);
+    // calc + upsert embedding
+    try {
+      const embedding = await getEmbeddingForTip(tip.title, tip.content);
+      await tipsIndex.upsert([
+        { id: tip.id, values: embedding, metadata: { userId } },
+      ]);
+    } catch (e) {
+      console.error("Pinecone upsert failed:", e);
+    }
 
-    return tip;
-  });
-
-  revalidatePath("/tips");
-  return tip;
-};
-
-const editTip = async ({
-  id,
-  title,
-  content,
-  attachmentFile
-}: z.infer<typeof updateTipSchema>) => {
-  if (!userId) {
-    return Error("Not authorized");
+    revalidatePath("/tips");
+    return { ok: true, data: { id: tip.id } };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, message: "Failed to create tip" };
   }
+}
 
-  const embedding = await getEmbeddingForTip(title, content);
+export async function editTip(
+  input: z.infer<typeof updateTipSchema>
+): Promise<ActionResult<void>> {
+  const parse = updateTipSchema.safeParse(input);
+  if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const tip = prisma.$transaction(async (tx) => {
-    const tip = await tx.tip.update({
-      where: { id },
+  const { userId } = auth();
+  if (!userId) return { ok: false, message: "Not authorized" };
+
+  const { id, title, content, attachmentFile } = parse.data;
+
+  const existing = await prisma.tip.findUnique({
+    where: { id },
+    select: { userId: true, title: true, content: true },
+  });
+  if (!existing) return { ok: false, message: "Not found" };
+  if (existing.userId !== userId) return { ok: false, message: "Forbidden" };
+
+  try {
+    await prisma.tip.update({
+      where: { id, userId },
       data: {
         title,
         content,
-        userId,
-        attachmentFileUrl: attachmentFile
+        ...(attachmentFile !== undefined
+          ? { attachmentFileUrl: attachmentFile }
+          : {}),
       },
     });
 
-    await tipsIndex.upsert([
-      {
-        id: id,
-        values: embedding,
-        metadata: { userId },
-      },
-    ]);
+    if (existing.title !== title || existing.content !== content) {
+      try {
+        const embedding = await getEmbeddingForTip(title, content);
+        await tipsIndex.upsert([
+          { id, values: embedding, metadata: { userId } },
+        ]);
+      } catch (e) {
+        console.error("Pinecone upsert (edit) failed:", e);
+      }
+    }
 
-    return tip;
-  });
-
-  revalidatePath("/tips");
-  return tip;
-};
-
-const deleteTip = async ({ id }: z.infer<typeof deleteTipSchema>) => {
-  if (!userId) {
-    return Error("Not authorized");
+    revalidatePath("/tips");
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, message: "Failed to update tip" };
   }
+}
 
-  await prisma.$transaction(async (tx) => {
-    await tx.tip.delete({
-      where: { id },
-    });
+export async function deleteTip(
+  input: z.infer<typeof deleteTipSchema>
+): Promise<ActionResult<void>> {
+  const parse = deleteTipSchema.safeParse(input);
+  if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-    await tipsIndex.deleteOne(id);
+  const { userId } = auth();
+  if (!userId) return { ok: false, message: "Not authorized" };
+
+  const { id } = parse.data;
+
+  const existing = await prisma.tip.findUnique({
+    where: { id },
+    select: { userId: true },
   });
-  revalidatePath("/tips");
-};
+  if (!existing) return { ok: false, message: "Not found" };
+  if (existing.userId !== userId) return { ok: false, message: "Forbidden" };
 
-export { addTip, editTip, deleteTip };
+  try {
+    await prisma.tip.delete({ where: { id, userId } });
+
+    try {
+      await tipsIndex.deleteOne(id);
+    } catch (e) {
+      console.error("Pinecone delete failed:", e);
+    }
+
+    revalidatePath("/tips");
+    return { ok: true, data: undefined };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, message: "Failed to delete tip" };
+  }
+}

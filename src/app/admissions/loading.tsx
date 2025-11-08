@@ -9,7 +9,7 @@ const Loading = () => {
           Admissions Data <School2 size={30} />
         </h1>
         <p className="text-sm text-muted-foreground">
-          User submitted data for the 2023 admission cycle
+          User submitted data for the 2025 admission cycle
         </p>
       </div>
       <div className="grid grid-cols-2 gap-8 lg:grid-cols-3">

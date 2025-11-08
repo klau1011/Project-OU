@@ -1,8 +1,6 @@
 import AdmissionCard from "@/components/Admissions/AdmissionCard";
 import Search from "@/components/ui/search";
-import prisma from "@/lib/db/prisma";
 import { School2 } from "lucide-react";
-import { altUniversitiesNames } from "@/data/universities";
 import useAdmissions from "./hooks/useAdmissions";
 import { Admission } from "@prisma/client";
 
@@ -16,11 +14,30 @@ export default async function Page({
 }: {
   searchParams?: SearchParamsInterface;
 }) {
-  const query = searchParams?.query || "";
+  const query = searchParams?.query?.trim() ?? "";
+  const university = searchParams?.university ?? "all";
+
   const { filteredAdmissions, totalAverage } = await useAdmissions({
     query,
-    university: searchParams?.university || "all",
+    university,
   });
+
+  // sort by highest average first for a predictable order
+  const sorted = [...filteredAdmissions].sort(
+    (a: Admission, b: Admission) => b.Average - a.Average
+  );
+
+  const showStats =
+    sorted.length > 0 && (query.length > 0 || university !== "all");
+
+const formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+const raw = typeof totalAverage === "string" ? Number(totalAverage) : totalAverage;
+const formattedAvg =
+  typeof raw === "number" && Number.isFinite(raw)
+    ? formatter.format(raw)
+    : null;
+
 
   return (
     <>
@@ -29,27 +46,51 @@ export default async function Page({
           Admissions Data <School2 size={30} />
         </h1>
         <p className="text-sm text-muted-foreground">
-          User submitted data for the 2023 admission cycle
+          User submitted data for the 2025 admission cycle
         </p>
-        <div className="mb-0 mt-10">
+
+        <div className="mt-6">
           <Search placeholder="Search for programs..." />
         </div>
       </div>
-      {filteredAdmissions.length === 0 && <p>No admissions found</p>}
-      {filteredAdmissions.length > 0 &&
-        query &&
-        !Number.isNaN(totalAverage) && (
-          <div className="left-1 mb-5 flex flex-col gap-1.5 text-sm font-medium leading-none">
-            <p>
-              Average for search "{query}" : {totalAverage} %
-            </p>
-            <p>Count: {filteredAdmissions.length}</p>
-          </div>
-        )}
-      <div className="sm: grid grid-cols-2 gap-8 lg:grid-cols-3">
-        {filteredAdmissions?.map((admission: Admission) => {
-          return <AdmissionCard key={admission.id} admission={admission} />;
-        })}
+
+      {showStats && formattedAvg && (
+        <div
+          className="mb-5 grid grid-cols-1 gap-2 text-sm font-medium leading-none md:grid-cols-3"
+          aria-live="polite"
+        >
+          <p>
+            Average for{" "}
+            {query ? (
+              <>
+                search "<span className="font-semibold">{query}</span>"
+              </>
+            ) : (
+              <>
+                university "<span className="font-semibold">{university}</span>"
+              </>
+            )}
+            : <span className="font-semibold">{formattedAvg}%</span>
+          </p>
+          <p>
+            Count: <span className="font-semibold">{sorted.length}</span>
+          </p>
+          <p className="text-muted-foreground">
+            Sorted by highest average first
+          </p>
+        </div>
+      )}
+
+      {sorted.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          No admissions found. Try a different search or clear filters.
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {sorted.map((admission) => (
+          <AdmissionCard key={admission.id} admission={admission} />
+        ))}
       </div>
     </>
   );
