@@ -4,9 +4,11 @@ interface NavPath {
 }
 
 const navPaths: NavPath[] = [
-    {path: '/guide', text: 'General Guide'},
-    {path: '/tips', text: 'Community Resources'},
-    {path: '/admissions', text: "Admissions Data"},
+    {path: '/guide', text: 'Guide'},
+    {path: '/tips', text: 'Community'},
+    {path: '/admissions', text: "Admissions"},
+    {path: '/calculator', text: "Calculator"},
+    {path: '/compare', text: "Compare"},
     {path: '/FAQ', text: "FAQ"}
 ]
 

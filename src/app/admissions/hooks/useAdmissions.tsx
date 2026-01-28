@@ -1,52 +1,64 @@
 import prisma from "@/lib/db/prisma";
-import { SearchParamsInterface } from "../page";
 import { altUniversitiesNames } from "@/data/universities";
 import { redis } from "@/lib/db/redis";
 import { Admission } from "@prisma/client";
 
+const CACHE_KEY = "allAdmissions";
+const CACHE_TTL = 60 * 60; // 1 hour in seconds
 
 const useAdmissions = async ({ query, university }: {
   query: string;
   university: string;
 }) => {
-  let admissions: any = await redis.get("allAdmissions");
-
-  if (!admissions) {
+  // Try to get from Redis cache first
+  let admissions: Admission[];
+  
+  try {
+    const cached = await redis.get(CACHE_KEY);
+    if (cached) {
+      admissions = JSON.parse(cached as string);
+    } else {
+      admissions = await prisma.admission.findMany();
+      // Cache with TTL
+      await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(admissions));
+    }
+  } catch {
+    // Fallback to database if Redis fails
     admissions = await prisma.admission.findMany();
-    await redis.set('allAdmissions', JSON.stringify(admissions));
-  } else {
-    admissions = JSON.parse(admissions);
-  }
-    
-
-  if (!query || query === "all") {
-    query = "";
   }
 
-  let filteredAdmissionsBySchool = admissions;
-  if (university) {
+  // Normalize query
+  const normalizedQuery = (!query || query === "all") ? "" : query.toLowerCase();
+
+  // Filter by school
+  let filteredAdmissions = admissions;
+  if (university && university !== "all") {
     const schoolCriteria = altUniversitiesNames[university];
-    filteredAdmissionsBySchool = filteredAdmissionsBySchool.filter(
-      (admission: Admission) =>
+    if (schoolCriteria) {
+      filteredAdmissions = filteredAdmissions.filter((admission) =>
         schoolCriteria.some((criteria) =>
-          admission.School.toLowerCase().includes(criteria),
-        ),
+          admission.School.toLowerCase().includes(criteria)
+        )
+      );
+    }
+  }
+
+  // Filter by program name
+  if (normalizedQuery) {
+    filteredAdmissions = filteredAdmissions.filter((admission) =>
+      admission.Program.toLowerCase().includes(normalizedQuery)
     );
   }
 
-  let filteredAdmissions = filteredAdmissionsBySchool;
-  if (query) {
-    filteredAdmissions = filteredAdmissionsBySchool.filter((admission: Admission) =>
-      admission.Program.toLowerCase().includes(query.toLowerCase()),
-    );
-  }
-
-  const totalAverage = (
-    filteredAdmissions.reduce((sum: number, admission: Admission) => {
-      const average = admission.Average
-      return !isNaN(average) ? sum + average : sum;
-    }, 0) / filteredAdmissions.length
-  ).toFixed(2);
+  // Calculate average
+  const totalAverage = filteredAdmissions.length > 0
+    ? (
+        filteredAdmissions.reduce((sum, admission) => {
+          const average = admission.Average;
+          return !isNaN(average) ? sum + average : sum;
+        }, 0) / filteredAdmissions.length
+      ).toFixed(2)
+    : "0.00";
 
   return { filteredAdmissions, totalAverage };
 };

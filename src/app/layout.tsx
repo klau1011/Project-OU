@@ -8,8 +8,18 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Project OU - Home",
-  description: "Home page of Project OU",
+  title: {
+    default: "Project OU - Ontario University Admissions Guide",
+    template: "%s | Project OU",
+  },
+  description: "Your intelligent central source for Ontario university admissions. Access admission data, community tips, GPA calculator, and program comparisons.",
+  keywords: ["Ontario universities", "university admissions", "OUAC", "GPA calculator", "university comparison", "high school guide"],
+  authors: [{ name: "Project OU Team" }],
+  openGraph: {
+    title: "Project OU - Ontario University Admissions Guide",
+    description: "Your intelligent central source for Ontario university admissions",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -18,16 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <ClerkProvider>
-        <html lang="en">
-          <body className={inter.className}>
-            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
+          <ThemeProvider 
+            attribute="class" 
+            defaultTheme="system" 
+            enableSystem 
+            disableTransitionOnChange
+          >
+            <Navbar />
             {children}
-            </ThemeProvider>
-          </body>
-        </html>
-      </ClerkProvider>
-    </>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
