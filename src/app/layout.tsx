@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import FloatingChatbot from "@/components/Chatbot/FloatingChatbot";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           >
             <Navbar />
             {children}
+            <FloatingChatbot />
           </ThemeProvider>
         </body>
       </html>

@@ -1,42 +1,67 @@
-import { Skeleton } from "@/components/Tip/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { School2 } from "lucide-react";
 
 const Loading = () => {
   return (
-    <>
-      <div className="mb-10 mt-5">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-2">
         <h1 className="mb-2 flex scroll-m-20 items-center gap-3 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Admissions Data <School2 size={30} />
         </h1>
         <p className="text-sm text-muted-foreground">
-          User submitted data for the 2025 admission cycle
+          User submitted data across all admission cycles
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-8 lg:grid-cols-3">
-        <LoadingCard />
-        <LoadingCard />
-        <LoadingCard />
-      </div>
-    </>
-  );
-};
 
-const LoadingCard = () => (
-  <>
-    <div className="rounded-md border shadow-sm">
-      <div className="flex flex-col space-y-1.5 p-6">
-        <h4 className="scroll-m-20 tracking-tight">
-          <Skeleton className="w-[168px] max-w-full" />
-        </h4>
-        <p>
-          <Skeleton className="w-[128px] max-w-full" />
-        </p>
+      {/* Filters skeleton */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-40" />
+        <Skeleton className="h-10 w-40" />
       </div>
-      <div className="p-6 pt-0">
-        <Skeleton className="w-[24px] max-w-full" />
+
+      {/* Stats bar skeleton */}
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-16" />
+      </div>
+
+      {/* Table skeleton */}
+      <div className="rounded-md border">
+        {/* Table header */}
+        <div className="border-b bg-muted/50 p-3">
+          <div className="grid grid-cols-4 gap-4">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-5 w-12" />
+          </div>
+        </div>
+        
+        {/* Table rows */}
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="border-b last:border-0 p-3">
+            <div className="grid grid-cols-4 gap-4">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-5 w-10" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination skeleton */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-5 w-32" />
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-24" />
+          <Skeleton className="h-9 w-24" />
+        </div>
       </div>
     </div>
-  </>
-);
+  );
+};
 
 export default Loading;

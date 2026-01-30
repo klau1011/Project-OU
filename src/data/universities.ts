@@ -23,6 +23,14 @@ export const altUniversitiesNames: UniversityNames = {
   Nipissing: ["nipissing"],
   Trent: ["trent"],
   OCAD: ["ocad", "ocadu"],
+  UBC: ["ubc", "british columbia", "ubcv", "ubco"],
+  McGill: ["mcgill"],
+  Alberta: ["alberta", "uofa"],
+  Calgary: ["calgary", "ucalgary"],
+  Dalhousie: ["dalhousie", "dal"],
+  Concordia: ["concordia"],
+  Acadia: ["acadia"],
+  MountAllison: ["mount allison"],
 };
 
 export const ontarioUniversitiesNames = [
@@ -89,5 +97,21 @@ export const ontarioUniversitiesNames = [
   {
     name: "Trent University",
     value: "Trent",
+  },
+  {
+    name: "UBC",
+    value: "UBC",
+  },
+  {
+    name: "McGill University",
+    value: "McGill",
+  },
+  {
+    name: "University of Alberta",
+    value: "Alberta",
+  },
+  {
+    name: "University of Calgary",
+    value: "Calgary",
   },
 ];

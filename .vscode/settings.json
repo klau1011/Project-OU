@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^node -e \"const data = require\\('\\./mock_data/cleaned-admissions\\.json'\\); const waterloo = data\\.filter\\(d => d\\.School\\.includes\\('Waterloo'\\) && d\\.Program\\.toLowerCase\\(\\)\\.includes\\('computer science'\\)\\); console\\.log\\('Total Waterloo CS entries:', waterloo\\.length\\); const codes = \\{\\}; waterloo\\.forEach\\(w => \\{ const key = w\\.OUACCode \\|\\| 'NO_CODE'; if \\(!codes\\[key\\]\\) codes\\[key\\] = \\[\\]; codes\\[key\\]\\.push\\(w\\.Program\\); \\}\\); Object\\.entries\\(codes\\)\\.forEach\\(\\(\\[k,v\\]\\) => console\\.log\\(k, ':', v\\.length, 'entries', '- Programs:', \\[\\.\\.\\.new Set\\(v\\)\\]\\.slice\\(0,3\\)\\.join\\(', '\\)\\)\\);\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

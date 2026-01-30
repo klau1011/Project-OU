@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from "react";
 import { Calculator, Plus, Trash2, RotateCcw, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 interface Course {
   id: string;
@@ -150,13 +152,12 @@ export default function CalculatorPage() {
                     </span>
                     
                     <div className="flex-1">
-                      <input
+                      <Input
                         type="text"
                         placeholder="Course name (e.g., Advanced Functions)"
                         value={course.name}
                         onChange={(e) => updateCourse(course.id, "name", e.target.value)}
                         list={`courses-${course.id}`}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       />
                       <datalist id={`courses-${course.id}`}>
                         {COMMON_COURSES.map((c) => (
@@ -165,15 +166,16 @@ export default function CalculatorPage() {
                       </datalist>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <input
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <Input
                         type="number"
                         placeholder="Grade %"
-                        min="0"
-                        max="100"
+                        min={0}
+                        max={100}
                         value={course.grade}
                         onChange={(e) => updateCourse(course.id, "grade", e.target.value)}
-                        className="w-24 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="w-full sm:w-24"
+                        inputMode="decimal"
                       />
                       
                       {courses.length > 1 && (
@@ -229,12 +231,7 @@ export default function CalculatorPage() {
                 </div>
               )}
 
-              <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${Math.min(top6Average, 100)}%` }}
-                />
-              </div>
+              <Progress value={Math.min(top6Average, 100)} className="h-3" />
             </CardContent>
           </Card>
 

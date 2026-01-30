@@ -1,10 +1,31 @@
 import { FileQuestion } from "lucide-react";
-import { Skeleton } from "../../components/Tip/Skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+
+const TipCardSkeleton = () => (
+  <Card>
+    <CardHeader>
+      <div className="flex justify-between items-start">
+        <Skeleton className="h-5 w-36" />
+        <Skeleton className="h-8 w-8 rounded" />
+      </div>
+    </CardHeader>
+    <CardContent className="space-y-2">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
+    </CardContent>
+    <CardFooter>
+      <Skeleton className="h-4 w-24" />
+    </CardFooter>
+  </Card>
+);
 
 export default function Loading() {
   return (
-    <>
-      <div className="mb-10 mt-5">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
         <h1 className="mb-2 flex scroll-m-20 items-center gap-3 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Community resources and tips <FileQuestion size={30} />
         </h1>
@@ -13,53 +34,13 @@ export default function Loading() {
           experiences
         </p>
       </div>
-      <div className="mt-5 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded- border shadow-sm">
-          <div className="flex flex-col space-y-1.5 p-6">
-            <h3 className="flex justify-between leading-none tracking-tight">
-              <Skeleton className="h-[20px] w-[144px] max-w-full" />
-            </h3>
-          </div>
-          <div className="p-6 pt-0">
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-          </div>
-          <div className="flex items-center p-6 pt-0">
-            <Skeleton className="w-[96px] max-w-full" />
-          </div>
-        </div>
-        <div className="rounded- border shadow-sm">
-          <div className="flex flex-col space-y-1.5 p-6">
-            <h3 className="flex justify-between leading-none tracking-tight">
-              <Skeleton className="h-[20px] w-[144px] max-w-full" />
-            </h3>
-          </div>
-          <div className="p-6 pt-0">
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-          </div>
-          <div className="flex items-center p-6 pt-0">
-            <Skeleton className="w-[96px] max-w-full" />
-          </div>
-        </div>
-        <div className="rounded- border shadow-sm">
-          <div className="flex flex-col space-y-1.5 p-6">
-            <h3 className="flex justify-between leading-none tracking-tight">
-              <Skeleton className="h-[20px] w-[144px] max-w-full" />
-            </h3>
-          </div>
-          <div className="p-6 pt-0">
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-            <Skeleton className="w-[1512px] max-w-full" />
-          </div>
-          <div className="flex items-center p-6 pt-0">
-            <Skeleton className="w-[96px] max-w-full" />
-          </div>
-        </div>
+
+      {/* Tips grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <TipCardSkeleton key={i} />
+        ))}
       </div>
-    </>
+    </div>
   );
 }

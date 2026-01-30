@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 import { Plus, Menu, X } from "lucide-react";
 import AddTipDialog from "../Tip/AddEditTipDialog";
 import ToggleThemeButton from "./ToggleThemeButton";
-import ChatbotButton from "../Chatbot/ChatbotButton";
 
 const Navbar = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -54,16 +53,13 @@ const Navbar = () => {
             {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-2">
               {pathname === "/tips" && (
-                <>
-                  <Button
-                    size="sm"
-                    onClick={() => setShowAddDialog(true)}
-                  >
-                    <Plus size={16} className="mr-1" />
-                    Add tip
-                  </Button>
-                  <ChatbotButton />
-                </>
+                <Button
+                  size="sm"
+                  onClick={() => setShowAddDialog(true)}
+                >
+                  <Plus size={16} className="mr-1" />
+                  Add tip
+                </Button>
               )}
               <ToggleThemeButton />
               <UserButton afterSignOutUrl="/" />

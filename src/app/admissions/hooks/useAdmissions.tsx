@@ -2,6 +2,7 @@ import prisma from "@/lib/db/prisma";
 import { altUniversitiesNames } from "@/data/universities";
 import { redis } from "@/lib/db/redis";
 import { Admission } from "@prisma/client";
+import { filterOutliersAndSingleEntrySchools } from "@/lib/admissions";
 
 const CACHE_KEY = "allAdmissions";
 const CACHE_TTL = 60 * 60; // 1 hour in seconds
@@ -10,28 +11,35 @@ const useAdmissions = async ({ query, university }: {
   query: string;
   university: string;
 }) => {
-  // Try to get from Redis cache first
+  // Try to get from Redis cache first (skip cache in development)
   let admissions: Admission[];
-  
-  try {
-    const cached = await redis.get(CACHE_KEY);
-    if (cached) {
-      admissions = JSON.parse(cached as string);
-    } else {
-      admissions = await prisma.admission.findMany();
-      // Cache with TTL
-      await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(admissions));
-    }
-  } catch {
-    // Fallback to database if Redis fails
+
+  if (process.env.NODE_ENV !== "production") {
     admissions = await prisma.admission.findMany();
+  } else {
+    try {
+      const cached = await redis.get(CACHE_KEY);
+      if (cached) {
+        admissions = JSON.parse(cached as string);
+      } else {
+        admissions = await prisma.admission.findMany();
+        // Cache with TTL
+        await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(admissions));
+      }
+    } catch {
+      // Fallback to database if Redis fails
+      admissions = await prisma.admission.findMany();
+    }
   }
+
+  // Data is pre-cleaned in JSON, but filter outliers for safety
+  const cleanedAdmissions = filterOutliersAndSingleEntrySchools(admissions);
 
   // Normalize query
   const normalizedQuery = (!query || query === "all") ? "" : query.toLowerCase();
 
   // Filter by school
-  let filteredAdmissions = admissions;
+  let filteredAdmissions = cleanedAdmissions;
   if (university && university !== "all") {
     const schoolCriteria = altUniversitiesNames[university];
     if (schoolCriteria) {

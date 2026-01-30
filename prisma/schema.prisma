@@ -23,10 +23,21 @@ model Tip {
 }
 
 model Admission {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  School     String
-  Program   String
-  Average    Float
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  School          String
+  Program         String
+  Average         Float
+  Decision        String?
+  OUACCode        String?
+  ApplicationDate String?
+  DecisionDate    String?
+  Group           String?   // "A" or "B" for OUAC groups
+  Citizenship     String?
+  Province        String?
+  HasSuppApp      Boolean?
+  SuppAppInfo     String?
+  Comments        String?
+  Scholarship     Int?
 
   @@map("applicants_data")
 }

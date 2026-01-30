@@ -6,6 +6,17 @@ export interface Admission {
   School: string;
   Program: string;
   Average: number;
+  Decision?: string | null;
+  OUACCode?: string | null;
+  ApplicationDate?: string | null;
+  DecisionDate?: string | null;
+  Group?: string | null;  // "A" or "B" for OUAC groups
+  Citizenship?: string | null;
+  Province?: string | null;
+  HasSuppApp?: boolean | null;
+  SuppAppInfo?: string | null;
+  Comments?: string | null;
+  Scholarship?: number | null;
 }
 
 export interface Tip {

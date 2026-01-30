@@ -30,7 +30,7 @@ const features = [
   },
   {
     title: "Admissions Data",
-    description: "Real admission averages from the 2025 cycle",
+    description: "Real admission averages from all cycles",
     href: "/admissions",
     icon: BarChart3,
     color: "bg-purple-500/10 text-purple-500",
@@ -141,7 +141,7 @@ export default function Home() {
               <div className="text-sm text-muted-foreground mt-1">Programs Listed</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary">2025</div>
+              <div className="text-4xl font-bold text-primary">All</div>
               <div className="text-sm text-muted-foreground mt-1">Admission Cycle Data</div>
             </div>
           </div>
