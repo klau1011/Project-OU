@@ -23,6 +23,14 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
   TrendingUp,
   TrendingDown,
   BarChart3,
@@ -264,29 +272,31 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <label className="text-sm font-medium mb-2 block">University</label>
-              <select 
-                className="w-full p-2 border rounded-md bg-background"
-                value={selectedUniversity}
-                onChange={(e) => setSelectedUniversity(e.target.value)}
-              >
-                <option value="all">All Universities</option>
-                {analytics.universities.map(u => (
-                  <option key={u} value={u}>{u}</option>
-                ))}
-              </select>
+              <Select value={selectedUniversity} onValueChange={setSelectedUniversity}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select university" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Universities</SelectItem>
+                  {analytics.universities.map(u => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex-1 min-w-[200px]">
               <label className="text-sm font-medium mb-2 block">Program Type</label>
-              <select 
-                className="w-full p-2 border rounded-md bg-background"
-                value={selectedProgram}
-                onChange={(e) => setSelectedProgram(e.target.value)}
-              >
-                <option value="all">All Programs</option>
-                {analytics.programKeywords.map(p => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
+              <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select program type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Programs</SelectItem>
+                  {analytics.programKeywords.map(p => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -435,23 +445,32 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <School className="w-5 h-5" />
-            University Comparison
+            {analytics.universityData.length === 1 ? "University Details" : "University Comparison"}
           </CardTitle>
           <CardDescription>
-            Average admission percentages by university (sorted by data points)
+            {analytics.universityData.length === 1
+              ? `Admission average for ${analytics.universityData[0]?.fullName}`
+              : "Average admission percentages by university (sorted by data points)"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
+          <div style={{ height: Math.max(300, analytics.universityData.length * 40) }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
-                data={analytics.universityData.slice(0, 15)} 
+                data={analytics.universityData} 
                 layout="vertical"
                 margin={{ left: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis type="number" domain={[70, 100]} className="text-xs" />
-                <YAxis dataKey="name" type="category" width={150} className="text-xs" />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  width={150} 
+                  className="text-xs"
+                  interval={0}
+                  tick={{ fontSize: 11 }}
+                />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))', 
@@ -525,35 +544,39 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-red-500" />
-              Most Competitive Programs
+              {analytics.topPrograms.length === 1 ? "Most Competitive Program" : "Most Competitive Programs"}
             </CardTitle>
             <CardDescription>
-              Programs with the highest average admission percentages (min 2 data points)
+              {analytics.topPrograms.length === 1
+                ? "Program with the highest average admission percentage"
+                : "Programs with the highest average admission percentages (min 2 data points)"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-              {analytics.topPrograms.map((p, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate" title={p.fullProgram}>
-                      {p.program}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate" title={p.fullSchool}>
-                      {p.school}
-                    </p>
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-3">
+                {analytics.topPrograms.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate" title={p.fullProgram}>
+                        {p.program}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate" title={p.fullSchool}>
+                        {p.school}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4">
+                      <Badge variant="destructive" className="font-bold">
+                        {p.average}%
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {p.count} {p.count === 1 ? "entry" : "entries"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right ml-4">
-                    <Badge variant="destructive" className="font-bold">
-                      {p.average}%
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {p.count} entries
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
@@ -562,35 +585,39 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingDown className="w-5 h-5 text-green-500" />
-              Most Accessible Programs
+              {analytics.accessiblePrograms.length === 1 ? "Most Accessible Program" : "Most Accessible Programs"}
             </CardTitle>
             <CardDescription>
-              Programs with the lowest average admission percentages (min 2 data points)
+              {analytics.accessiblePrograms.length === 1
+                ? "Program with the lowest average admission percentage"
+                : "Programs with the lowest average admission percentages (min 2 data points)"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-              {analytics.accessiblePrograms.map((p, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate" title={p.fullProgram}>
-                      {p.program}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate" title={p.fullSchool}>
-                      {p.school}
-                    </p>
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-3">
+                {analytics.accessiblePrograms.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate" title={p.fullProgram}>
+                        {p.program}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate" title={p.fullSchool}>
+                        {p.school}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4">
+                      <Badge className="bg-green-500 font-bold">
+                        {p.average}%
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {p.count} {p.count === 1 ? "entry" : "entries"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right ml-4">
-                    <Badge className="bg-green-500 font-bold">
-                      {p.average}%
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {p.count} entries
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>

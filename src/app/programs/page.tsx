@@ -6,6 +6,10 @@ import { Admission } from "@/lib/types";
 import { filterOutliersAndSingleEntrySchools } from "@/lib/admissions";
 import { Search } from "lucide-react";
 
+// Disable caching - always fetch fresh data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const CACHE_KEY = "allAdmissions";
 
 async function getAdmissions(): Promise<Admission[]> {

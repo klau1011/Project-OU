@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Target,
   TrendingUp,
@@ -224,25 +225,27 @@ export default function ChanceMeCalculator({ admissions }: ChanceMeCalculatorPro
               onChange={(e) => setProgramSearch(e.target.value)}
             />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[300px] overflow-y-auto p-2 border rounded-lg">
-              {filteredPrograms.map((p) => (
-                <div
-                  key={p.key}
-                  onClick={() => toggleProgram(p.key)}
-                  className={`p-3 rounded-lg cursor-pointer transition-all ${
-                    selectedPrograms.includes(p.key)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted hover:bg-muted/80"
-                  }`}
-                >
-                  <p className="font-medium text-sm truncate">{p.program}</p>
-                  <p className="text-xs opacity-80 truncate">{p.school}</p>
-                  <p className="text-xs opacity-60 mt-1">
-                    Avg: {p.avgAverage.toFixed(1)}% • {p.count} data points
-                  </p>
-                </div>
-              ))}
-            </div>
+            <ScrollArea className="h-[300px] rounded-lg border p-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {filteredPrograms.map((p) => (
+                  <div
+                    key={p.key}
+                    onClick={() => toggleProgram(p.key)}
+                    className={`p-3 rounded-lg cursor-pointer transition-all ${
+                      selectedPrograms.includes(p.key)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-muted/80"
+                    }`}
+                  >
+                    <p className="font-medium text-sm truncate">{p.program}</p>
+                    <p className="text-xs opacity-80 truncate">{p.school}</p>
+                    <p className="text-xs opacity-60 mt-1">
+                      Avg: {p.avgAverage.toFixed(1)}% • {p.count} data points
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
 
           <Button 

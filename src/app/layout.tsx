@@ -6,7 +6,11 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import FloatingChatbot from "@/components/Chatbot/FloatingChatbot";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -30,8 +34,8 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
+      <html lang="en" suppressHydrationWarning className={inter.variable}>
+        <body className={`${inter.className} min-h-screen bg-background antialiased`}>
           <ThemeProvider 
             attribute="class" 
             defaultTheme="system" 
@@ -39,7 +43,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            {children}
+            <main className="animate-fade-in">
+              {children}
+            </main>
             <FloatingChatbot />
           </ThemeProvider>
         </body>

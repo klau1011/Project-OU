@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Search,
   Filter,
@@ -282,18 +283,20 @@ export default function ProgramFinder({ admissions }: ProgramFinderProps) {
               {/* School Selection */}
               <div className="space-y-2">
                 <Label className="text-sm">Filter by University ({selectedSchools.length} selected)</Label>
-                <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-2 border rounded-lg">
-                  {schools.map(school => (
-                    <Badge
-                      key={school}
-                      variant={selectedSchools.includes(school) ? "default" : "outline"}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => toggleSchool(school)}
-                    >
-                      {school.length > 30 ? school.substring(0, 27) + "..." : school}
-                    </Badge>
-                  ))}
-                </div>
+                <ScrollArea className="h-[120px] rounded-lg border p-2">
+                  <div className="flex flex-wrap gap-2">
+                    {schools.map(school => (
+                      <Badge
+                        key={school}
+                        variant={selectedSchools.includes(school) ? "default" : "outline"}
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => toggleSchool(school)}
+                      >
+                        {school.length > 30 ? school.substring(0, 27) + "..." : school}
+                      </Badge>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             </div>
           )}

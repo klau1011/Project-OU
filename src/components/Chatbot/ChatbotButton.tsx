@@ -21,7 +21,7 @@ export default function ChatbotButton({ floating = false, className }: ChatbotBu
         <button
           onClick={() => setIsChatbotOpen(!isChatbotOpen)}
           className={cn(
-            "fixed bottom-4 right-4 z-40 p-4 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105",
+            "fixed bottom-4 right-4 z-40 p-4 rounded-full bg-gradient-to-r from-primary to-purple-500 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 hover:from-primary/90 hover:to-purple-500/90",
             isChatbotOpen && "rotate-0",
             className
           )}
@@ -43,7 +43,7 @@ export default function ChatbotButton({ floating = false, className }: ChatbotBu
       <button
         onClick={() => setIsChatbotOpen(!isChatbotOpen)}
         className={cn(
-          "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors",
+          "inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200",
           className
         )}
       >
