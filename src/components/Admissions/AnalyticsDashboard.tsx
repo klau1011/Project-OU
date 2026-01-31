@@ -124,13 +124,17 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
     // Program category breakdown
     const programCategories: Record<string, { count: number; total: number }> = {};
     const categoryKeywords: Record<string, string[]> = {
-      "Computer Science": ["computer", "computing", "software", "data science", "ai", "machine learning"],
-      "Engineering": ["engineering", "mechanical", "electrical", "civil", "chemical"],
-      "Business": ["business", "commerce", "accounting", "finance", "marketing", "management"],
-      "Health Sciences": ["health", "nursing", "kinesiology", "medical", "pharmacy", "life science"],
-      "Arts & Humanities": ["arts", "english", "history", "philosophy", "music", "drama", "film"],
-      "Science": ["science", "biology", "chemistry", "physics", "mathematics", "math"],
-      "Social Sciences": ["psychology", "sociology", "economics", "political", "criminology"],
+      "Computer Science": ["computer", "computing", "software", "data science", "ai", "machine learning", "information technology", "cyber"],
+      "Engineering": ["engineering", "mechanical", "electrical", "civil", "chemical", "biomedical", "aerospace", "mechatronics", "systems design"],
+      "Business": ["business", "commerce", "accounting", "finance", "marketing", "management", "bba", "entrepreneurship", "supply chain"],
+      "Health Sciences": ["health", "nursing", "kinesiology", "medical", "pharmacy", "life science", "physiotherapy", "occupational therapy", "nutrition", "public health"],
+      "Arts & Humanities": ["arts", "english", "history", "philosophy", "music", "drama", "film", "theatre", "literature", "creative writing", "linguistics", "classics", "religious", "fine art", "visual art"],
+      "Science": ["science", "biology", "chemistry", "physics", "mathematics", "math", "biochemistry", "neuroscience", "environmental", "geology", "astronomy"],
+      "Social Sciences": ["psychology", "sociology", "economics", "political", "criminology", "anthropology", "international relations", "social work", "urban", "geography", "gender"],
+      "Education": ["education", "teaching", "teacher", "early childhood"],
+      "Law & Legal": ["law", "legal", "paralegal", "justice"],
+      "Media & Communications": ["media", "journalism", "communications", "public relations", "broadcasting", "digital media"],
+      "Architecture & Design": ["architecture", "design", "interior", "urban planning", "landscape"],
       "Other": [],
     };
 
@@ -236,7 +240,10 @@ export default function AnalyticsDashboard({ admissions }: AnalyticsDashboardPro
     const universities = Array.from(new Set(admissions.map(a => a.School))).sort();
     const programKeywords = [
       "Computer Science", "Engineering", "Business", "Nursing", 
-      "Biology", "Psychology", "Economics", "Mathematics"
+      "Biology", "Psychology", "Economics", "Mathematics",
+      "Arts", "Music", "History", "Philosophy",
+      "Education", "Law", "Media", "Architecture",
+      "Chemistry", "Physics", "Sociology", "Accounting"
     ];
 
     return {

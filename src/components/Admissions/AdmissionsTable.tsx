@@ -83,7 +83,7 @@ const decisionOrder: Record<string, number> = {
 };
 
 export default function AdmissionsTable({ admissions }: AdmissionsTableProps) {
-  const [sortField, setSortField] = useState<SortField>("Average");
+  const [sortField, setSortField] = useState<SortField>("DecisionDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [currentPage, setCurrentPage] = useState(1);
 

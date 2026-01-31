@@ -98,9 +98,19 @@ export default function ProgramFinder({ admissions }: ProgramFinderProps) {
         avgAverage: p.avgAverage / p.count,
       }));
 
+    // Count admissions per school for popularity sorting
+    const schoolCounts: Record<string, number> = {};
+    admissions.forEach(a => {
+      schoolCounts[a.School] = (schoolCounts[a.School] || 0) + 1;
+    });
+
+    // Sort schools by count (most popular first)
+    const sortedSchools = Array.from(schoolSet)
+      .sort((a, b) => (schoolCounts[b] || 0) - (schoolCounts[a] || 0));
+
     return {
       programs,
-      schools: Array.from(schoolSet).sort(),
+      schools: sortedSchools,
     };
   }, [admissions]);
 

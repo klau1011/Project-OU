@@ -4,7 +4,7 @@ import { redis } from "@/lib/db/redis";
 import { applyProgramNameMap } from "@/lib/admissions";
 
 const CACHE_KEY = "allAdmissions";
-const CACHE_TTL = 3600; // 1 hour
+const CACHE_TTL = 60 * 60 * 24 * 7; // 1 week in seconds
 
 export async function GET() {
   try {

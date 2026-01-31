@@ -4,9 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { School2, TrendingUp } from "lucide-react";
 import useAdmissions from "./hooks/useAdmissions";
 
-// Disable caching - always fetch fresh data
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export interface SearchParamsInterface {
   query?: string;

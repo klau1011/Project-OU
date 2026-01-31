@@ -24,7 +24,7 @@ export async function addTip(
   const { userId } = auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
-  const { title, content, attachmentFile } = parse.data;
+  const { title, content, category, attachmentFile } = parse.data;
 
   try {
     // create db row
@@ -32,6 +32,7 @@ export async function addTip(
       data: {
         title,
         content,
+        category: category ?? "general",
         userId,
         attachmentFileUrl: attachmentFile ?? null,
       },
@@ -65,7 +66,7 @@ export async function editTip(
   const { userId } = auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
-  const { id, title, content, attachmentFile } = parse.data;
+  const { id, title, content, category, attachmentFile } = parse.data;
 
   const existing = await prisma.tip.findUnique({
     where: { id },
@@ -80,6 +81,7 @@ export async function editTip(
       data: {
         title,
         content,
+        ...(category !== undefined ? { category } : {}),
         ...(attachmentFile !== undefined
           ? { attachmentFileUrl: attachmentFile }
           : {}),

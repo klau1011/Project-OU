@@ -5,7 +5,7 @@ import { Admission } from "@prisma/client";
 import { filterOutliersAndSingleEntrySchools } from "@/lib/admissions";
 
 const CACHE_KEY = "allAdmissions";
-const CACHE_TTL = 60 * 60; // 1 hour in seconds
+const CACHE_TTL = 60 * 60 * 24 * 7; // 1 week in seconds
 
 const useAdmissions = async ({ query, university }: {
   query: string;
