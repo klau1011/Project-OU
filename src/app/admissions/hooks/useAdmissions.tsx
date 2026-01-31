@@ -7,7 +7,7 @@ import { filterOutliersAndSingleEntrySchools } from "@/lib/admissions";
 const CACHE_KEY = "allAdmissions";
 const CACHE_TTL = 60 * 60 * 24 * 7; // 1 week in seconds
 
-const useAdmissions = async ({ query, university }: {
+const getAdmissions = async ({ query, university }: {
   query: string;
   university: string;
 }) => {
@@ -36,9 +36,9 @@ const useAdmissions = async ({ query, university }: {
   const cleanedAdmissions = filterOutliersAndSingleEntrySchools(admissions);
 
   // Normalize query
-  const normalizedQuery = (!query || query === "all") ? "" : query.toLowerCase();
+  const normalizedQuery = (!query || query === "all") ? "" : query.trim();
 
-  // Filter by school
+  // Filter by school first (exact match)
   let filteredAdmissions = cleanedAdmissions;
   if (university && university !== "all") {
     const schoolCriteria = altUniversitiesNames[university];
@@ -51,10 +51,11 @@ const useAdmissions = async ({ query, university }: {
     }
   }
 
-  // Filter by program name
+  // Apply simple text search for program name
   if (normalizedQuery) {
+    const searchLower = normalizedQuery.toLowerCase();
     filteredAdmissions = filteredAdmissions.filter((admission) =>
-      admission.Program.toLowerCase().includes(normalizedQuery)
+      admission.Program.toLowerCase().includes(searchLower)
     );
   }
 
@@ -71,4 +72,4 @@ const useAdmissions = async ({ query, university }: {
   return { filteredAdmissions, totalAverage };
 };
 
-export default useAdmissions;
+export default getAdmissions;

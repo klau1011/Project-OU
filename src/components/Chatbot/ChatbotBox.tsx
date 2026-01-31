@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Bot, X, Send, Sparkles, Trash2, AlertCircle, Clock } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useChat } from "ai/react";
+import { useChat, type Message } from "ai/react";
 import ChatMessage from "./ChatMessage";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -32,7 +32,7 @@ const ChatbotBox = ({ open, onClose }: ChatbotBoxProps) => {
     error,
     setInput,
   } = useChat({
-    onError: (err) => {
+    onError: (err: Error) => {
       // Parse error message from response
       try {
         const parsed = JSON.parse(err.message);
@@ -165,7 +165,10 @@ const ChatbotBox = ({ open, onClose }: ChatbotBoxProps) => {
               )}
               
               {messages.map((message) => (
-                <ChatMessage message={message} key={message.id} />
+                <ChatMessage 
+                  message={{ role: message.role as "user" | "assistant" | "system", content: message.content }} 
+                  key={message.id} 
+                />
               ))}
               
               {isUserLastMessage && isLoading && (

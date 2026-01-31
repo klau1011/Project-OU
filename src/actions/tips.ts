@@ -9,7 +9,7 @@ import {
   updateTipSchema,
   CreateTipSchema as CreateTipInputType,
 } from "@/validation/review";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -21,7 +21,7 @@ export async function addTip(
   const parse = createTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { title, content, category, attachmentFile } = parse.data;
@@ -63,7 +63,7 @@ export async function editTip(
   const parse = updateTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { id, title, content, category, attachmentFile } = parse.data;
@@ -113,7 +113,7 @@ export async function deleteTip(
   const parse = deleteTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { id } = parse.data;

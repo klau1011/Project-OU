@@ -1,10 +1,10 @@
 import { tipsIndex } from "@/lib/db/pinecone";
 import prisma from "@/lib/db/prisma";
 import { redis } from "@/lib/db/redis";
-import openai, { getEmbedding } from "@/lib/openai";
-import { auth } from "@clerk/nextjs";
-import { ChatCompletionMessage } from "openai/resources/index.mjs";
-import { OpenAIStream, StreamingTextResponse } from "ai";
+import { getEmbedding } from "@/lib/openai";
+import { auth } from "@clerk/nextjs/server";
+import { streamText, type CoreMessage } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 // Rate limiting configuration
 const RATE_LIMIT_MAX_REQUESTS = 20; // Max requests per window
@@ -71,7 +71,7 @@ async function checkRateLimit(userId: string): Promise<{ allowed: boolean; remai
 export async function POST(req: Request) {
   try {
     // Get user ID from Clerk auth
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return new Response(
@@ -101,13 +101,13 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const messages: ChatCompletionMessage[] = body.messages;
+    const messages: CoreMessage[] = body.messages;
 
     // Get last 6 messages to get relevant chat context
     const messagesTruncated = messages.slice(-6);
 
     const relevantEmbedding = await getEmbedding(
-      messagesTruncated.map((message) => message.content).join("\n")
+      messagesTruncated.map((message) => typeof message.content === 'string' ? message.content : '').join("\n")
     );
 
     const pineconeMatches = await tipsIndex.query({
@@ -129,26 +129,19 @@ export async function POST(req: Request) {
     const tipsContext = relevantTips.length > 0
       ? "\n\nRelevant community tips that may help answer the question:\n" +
         relevantTips
-          .map((tip) => `- ${tip.title}: ${tip.content}`)
+          .map((tip: { title: string; content: string }) => `- ${tip.title}: ${tip.content}`)
           .join("\n")
       : "";
 
-    const systemMessage: ChatCompletionMessage = {
-      role: "assistant",
-      content: SYSTEM_PROMPT + tipsContext,
-    };
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      stream: true,
-      messages: [systemMessage, ...messagesTruncated],
-      max_tokens: 500, // Limit response length
+    const result = await streamText({
+      model: openai("gpt-3.5-turbo"),
+      system: SYSTEM_PROMPT + tipsContext,
+      messages: messagesTruncated,
+      maxTokens: 500,
       temperature: 0.7,
     });
 
-    // Set up chat streaming
-    const stream = OpenAIStream(response);
-    return new StreamingTextResponse(stream, {
+    return result.toDataStreamResponse({
       headers: {
         "X-RateLimit-Remaining": rateLimit.remaining.toString(),
       },

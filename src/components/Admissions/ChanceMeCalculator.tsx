@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Target,
   TrendingUp,
   TrendingDown,
@@ -18,6 +25,10 @@ import {
   BarChart3,
   GraduationCap,
   Calculator,
+  Search,
+  Building2,
+  X,
+  Filter,
 } from "lucide-react";
 import { Admission } from "@/lib/types";
 
@@ -41,8 +52,15 @@ export default function ChanceMeCalculator({ admissions }: ChanceMeCalculatorPro
   const [average, setAverage] = useState<string>("");
   const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
   const [programSearch, setProgramSearch] = useState<string>("");
+  const [selectedUniversity, setSelectedUniversity] = useState<string>("all");
   const [results, setResults] = useState<ChanceResult[]>([]);
   const [hasCalculated, setHasCalculated] = useState(false);
+
+  // Get unique universities for quick filter
+  const universities = useMemo(() => {
+    const uniqueSchools = Array.from(new Set(admissions.map(a => a.School))).sort();
+    return uniqueSchools;
+  }, [admissions]);
 
   // Get unique programs with stats
   const programStats = useMemo(() => {
@@ -82,18 +100,39 @@ export default function ChanceMeCalculator({ admissions }: ChanceMeCalculatorPro
         count: s.count,
         averages: s.averages.sort((a, b) => a - b),
       }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => a.school.localeCompare(b.school) || a.program.localeCompare(b.program));
   }, [admissions]);
 
-  // Filter programs based on search
+  // Filter programs based on search and university filter
   const filteredPrograms = useMemo(() => {
-    if (!programSearch.trim()) return programStats.slice(0, 20);
-    const search = programSearch.toLowerCase();
-    return programStats.filter(p => 
-      p.program.toLowerCase().includes(search) || 
-      p.school.toLowerCase().includes(search)
-    ).slice(0, 20);
-  }, [programStats, programSearch]);
+    let filtered = programStats;
+    
+    // Filter by university first
+    if (selectedUniversity !== "all") {
+      filtered = filtered.filter(p => p.school === selectedUniversity);
+    }
+    
+    // Apply simple text search if there's a search term
+    if (programSearch.trim()) {
+      const searchLower = programSearch.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.program.toLowerCase().includes(searchLower) ||
+        p.school.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    return filtered.slice(0, 50);
+  }, [programStats, programSearch, selectedUniversity]);
+
+  // Group filtered programs by university for better organization
+  const groupedPrograms = useMemo(() => {
+    const groups: Record<string, typeof filteredPrograms> = {};
+    filteredPrograms.forEach(p => {
+      if (!groups[p.school]) groups[p.school] = [];
+      groups[p.school].push(p);
+    });
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredPrograms]);
 
   const toggleProgram = (key: string) => {
     setSelectedPrograms(prev => 
@@ -216,36 +255,152 @@ export default function ChanceMeCalculator({ admissions }: ChanceMeCalculatorPro
 
           {/* Program Selection */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">
-              Select Programs (max 10) - {selectedPrograms.length} selected
-            </Label>
-            <Input
-              placeholder="Search for programs or universities..."
-              value={programSearch}
-              onChange={(e) => setProgramSearch(e.target.value)}
-            />
-            
-            <ScrollArea className="h-[300px] rounded-lg border p-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {filteredPrograms.map((p) => (
-                  <div
-                    key={p.key}
-                    onClick={() => toggleProgram(p.key)}
-                    className={`p-3 rounded-lg cursor-pointer transition-all ${
-                      selectedPrograms.includes(p.key)
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted hover:bg-muted/80"
-                    }`}
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">
+                Select Programs (max 10)
+              </Label>
+              {selectedPrograms.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedPrograms([])}
+                  className="h-7 text-xs"
+                >
+                  Clear all ({selectedPrograms.length})
+                </Button>
+              )}
+            </div>
+
+            {/* Selected Programs Pills */}
+            {selectedPrograms.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-3 bg-muted/50 rounded-lg">
+                {selectedPrograms.map(key => {
+                  const program = programStats.find(p => p.key === key);
+                  if (!program) return null;
+                  return (
+                    <Badge
+                      key={key}
+                      variant="secondary"
+                      className="flex items-center gap-1 pr-1"
+                    >
+                      <span className="max-w-[150px] truncate">{program.program}</span>
+                      <span className="text-xs opacity-70">({program.school.split(" ")[0]})</span>
+                      <button
+                        onClick={() => toggleProgram(key)}
+                        className="ml-1 hover:bg-muted rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search programs..."
+                  value={programSearch}
+                  onChange={(e) => setProgramSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={selectedUniversity} onValueChange={setSelectedUniversity}>
+                <SelectTrigger className="w-full sm:w-[220px]">
+                  <Building2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="All Universities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Universities ({universities.length})</SelectItem>
+                  {universities.map(uni => (
+                    <SelectItem key={uni} value={uni}>
+                      {uni}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Quick University Buttons */}
+            <div className="flex flex-wrap gap-1.5">
+              {["University of Toronto", "University of Waterloo", "McMaster University", "Western University", "Queen's University"].map(uni => {
+                if (!universities.includes(uni)) return null;
+                const isSelected = selectedUniversity === uni;
+                return (
+                  <Button
+                    key={uni}
+                    variant={isSelected ? "default" : "outline"}
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => setSelectedUniversity(isSelected ? "all" : uni)}
                   >
-                    <p className="font-medium text-sm truncate">{p.program}</p>
-                    <p className="text-xs opacity-80 truncate">{p.school}</p>
-                    <p className="text-xs opacity-60 mt-1">
-                      Avg: {p.avgAverage.toFixed(1)}% • {p.count} data points
-                    </p>
+                    {uni.replace("University of ", "U of ").replace(" University", "")}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            <ScrollArea className="h-[350px] rounded-lg border">
+              <div className="p-3 space-y-4">
+                {groupedPrograms.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No programs found matching your search</p>
                   </div>
-                ))}
+                ) : (
+                  groupedPrograms.map(([school, programs]) => (
+                    <div key={school}>
+                      <div className="flex items-center gap-2 mb-2 sticky top-0 bg-background py-1">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        <h4 className="font-semibold text-sm">{school}</h4>
+                        <Badge variant="outline" className="text-xs">
+                          {programs.length} program{programs.length !== 1 ? "s" : ""}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 gap-1.5 pl-6">
+                        {programs.map((p) => {
+                          const isSelected = selectedPrograms.includes(p.key);
+                          return (
+                            <div
+                              key={p.key}
+                              onClick={() => toggleProgram(p.key)}
+                              className={`p-2.5 rounded-lg cursor-pointer transition-all border ${
+                                isSelected
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-card hover:bg-muted border-transparent hover:border-border"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="font-medium text-sm truncate flex-1">{p.program}</p>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className={`text-xs ${isSelected ? "opacity-80" : "text-muted-foreground"}`}>
+                                    {p.avgAverage.toFixed(1)}% avg
+                                  </span>
+                                  <Badge 
+                                    variant={isSelected ? "secondary" : "outline"} 
+                                    className="text-[10px] h-5"
+                                  >
+                                    {p.count} pts
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </ScrollArea>
+
+            <p className="text-xs text-muted-foreground">
+              Showing {filteredPrograms.length} of {programStats.length} programs
+              {selectedUniversity !== "all" && ` from ${selectedUniversity}`}
+            </p>
           </div>
 
           <Button 

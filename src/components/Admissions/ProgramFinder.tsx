@@ -118,10 +118,10 @@ export default function ProgramFinder({ admissions }: ProgramFinderProps) {
   const filteredPrograms = useMemo(() => {
     let filtered = programs;
 
-    // Text search
+    // Simple text search
     if (search.trim()) {
       const searchLower = search.toLowerCase();
-      filtered = filtered.filter(p => 
+      filtered = filtered.filter(p =>
         p.program.toLowerCase().includes(searchLower) ||
         p.school.toLowerCase().includes(searchLower)
       );

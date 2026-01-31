@@ -35,6 +35,7 @@ import { useState } from "react";
 import { uploadFile } from "@/actions/fileUpload";
 import { useUser } from "@clerk/nextjs";
 import { AlertTriangle, FileText, Paperclip, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface AddEditTipDialogProps {
   open: boolean;
@@ -84,9 +85,10 @@ export default function AddEditTipDialog({
         } as any);
 
         if (res && typeof res === "object" && "ok" in res && !res.ok) {
-          alert(res.message ?? "Failed to update resource");
+          toast.error(res.message ?? "Failed to update resource");
           return;
         }
+        toast.success("Resource updated successfully");
       } else {
         const res = await addTip({
           title: values.title,
@@ -96,16 +98,17 @@ export default function AddEditTipDialog({
         } as any);
 
         if (res && typeof res === "object" && "ok" in res && !res.ok) {
-          alert(res.message ?? "Failed to create resource");
+          toast.error(res.message ?? "Failed to create resource");
           return;
         }
+        toast.success("Resource published successfully");
       }
 
       form.reset();
       setOpen(false);
     } catch (e) {
       console.error(e);
-      alert("Unexpected error");
+      toast.error("An unexpected error occurred");
     }
   }
 
@@ -116,13 +119,14 @@ export default function AddEditTipDialog({
       setDeleteInProgress(true);
       const res = await deleteTip({ id: tipToEdit.id } as any);
       if (res && typeof res === "object" && "ok" in res && !res.ok) {
-        alert(res.message ?? "Failed to delete resource");
+        toast.error(res.message ?? "Failed to delete resource");
         return;
       }
+      toast.success("Resource deleted");
       setOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Unexpected error");
+      toast.error("An unexpected error occurred");
     } finally {
       setDeleteInProgress(false);
       setShowDeleteConfirm(false);
