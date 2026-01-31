@@ -99,7 +99,7 @@ const ChatbotBox = ({ open, onClose }: ChatbotBoxProps) => {
         <div className="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-primary to-purple-500 text-primary-foreground">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-full bg-primary-foreground/20">
-              <Sparkles className="w-4 h-4\" />
+              <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-semibold text-sm">AI Assistant</h3>

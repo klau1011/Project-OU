@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Tip as TipModel } from "@prisma/client";
+import { Tip as TipModel, TipVote } from "@prisma/client";
 import Tip from "@/components/Tip/Tip";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -20,14 +20,20 @@ import {
   BookOpen,
   GraduationCap,
   FileText,
+  ThumbsUp,
 } from "lucide-react";
 import PageHeader from "@/components/ui/page-header";
 
+type TipWithVotes = TipModel & {
+  upvotes: TipVote[];
+  _count?: { upvotes: number };
+};
+
 interface TipsPageClientProps {
-  tips: TipModel[];
+  tips: TipWithVotes[];
 }
 
-type SortOption = "newest" | "oldest" | "title";
+type SortOption = "newest" | "oldest" | "title" | "popular";
 
 // Categorize tips based on content keywords
 const CATEGORIES = [
@@ -92,6 +98,10 @@ export default function TipsPageClient({ tips }: TipsPageClientProps) {
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case "title":
           return a.title.localeCompare(b.title);
+        case "popular":
+          const aVotes = a._count?.upvotes ?? a.upvotes?.length ?? 0;
+          const bVotes = b._count?.upvotes ?? b.upvotes?.length ?? 0;
+          return bVotes - aVotes;
         default:
           return 0;
       }
@@ -197,6 +207,17 @@ export default function TipsPageClient({ tips }: TipsPageClientProps) {
               >
                 <SortAsc className="w-4 h-4" />
                 Oldest
+              </button>
+              <button
+                onClick={() => setSortBy("popular")}
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  sortBy === "popular"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                }`}
+              >
+                <ThumbsUp className="w-4 h-4" />
+                Popular
               </button>
               <button
                 onClick={() => setSortBy("title")}

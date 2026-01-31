@@ -76,9 +76,9 @@ export default function Home() {
             className="rounded-xl shadow-lg"
             priority
           />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-visible">
             <GraduationCap className="h-8 w-8 text-primary" />
-            <span className="text-4xl font-extrabold tracking-tight lg:text-5xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="text-4xl font-extrabold tracking-tight lg:text-5xl bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent leading-normal">
               Project OU
             </span>
           </div>

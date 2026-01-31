@@ -11,16 +11,28 @@ datasource db {
 }
 
 model Tip {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
   title             String
   content           String
-  category          String   @default("general")
+  category          String     @default("general")
   userId            String
   attachmentFileUrl String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  upvotes           TipVote[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   @@map("tips")
+}
+
+model TipVote {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tipId     String   @db.ObjectId
+  tip       Tip      @relation(fields: [tipId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([tipId, userId])
+  @@map("tip_votes")
 }
 
 model Admission {

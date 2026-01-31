@@ -9,11 +9,44 @@ import {
   updateTipSchema,
   CreateTipSchema as CreateTipInputType,
 } from "@/validation/review";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 type ActionResult<T> = { ok: true; data: T } | { ok: false; message: string };
+
+export async function toggleUpvote(
+  tipId: string
+): Promise<ActionResult<{ upvoted: boolean; count: number }>> {
+  const { userId } = auth();
+  if (!userId) return { ok: false, message: "Not authorized" };
+
+  try {
+    const existingVote = await prisma.tipVote.findUnique({
+      where: { tipId_userId: { tipId, userId } },
+    });
+
+    if (existingVote) {
+      // Remove upvote
+      await prisma.tipVote.delete({
+        where: { id: existingVote.id },
+      });
+    } else {
+      // Add upvote
+      await prisma.tipVote.create({
+        data: { tipId, userId },
+      });
+    }
+
+    const count = await prisma.tipVote.count({ where: { tipId } });
+
+    revalidatePath("/tips");
+    return { ok: true, data: { upvoted: !existingVote, count } };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, message: "Failed to toggle upvote" };
+  }
+}
 
 export async function addTip(
   input: CreateTipInputType
@@ -21,7 +54,7 @@ export async function addTip(
   const parse = createTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = await auth();
+  const { userId } = auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { title, content, category, attachmentFile } = parse.data;
@@ -63,7 +96,7 @@ export async function editTip(
   const parse = updateTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = await auth();
+  const { userId } = auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { id, title, content, category, attachmentFile } = parse.data;
@@ -113,7 +146,7 @@ export async function deleteTip(
   const parse = deleteTipSchema.safeParse(input);
   if (!parse.success) return { ok: false, message: "Invalid payload" };
 
-  const { userId } = await auth();
+  const { userId } = auth();
   if (!userId) return { ok: false, message: "Not authorized" };
 
   const { id } = parse.data;

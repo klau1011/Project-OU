@@ -3,7 +3,11 @@ import TipsPageClient from "./TipsPageClient";
 
 const page = async () => {
   const tips = await prisma.tip.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      upvotes: true,
+      _count: { select: { upvotes: true } },
+    },
   });
   
   return <TipsPageClient tips={tips} />;

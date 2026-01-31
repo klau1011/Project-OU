@@ -21,7 +21,8 @@ export const createTipSchema = z.object({
     .min(10, "Content must be at least 10 characters")
     .max(2000, "Content must be under 2000 characters"),
   category: z
-    .enum(["general", "applications", "academics", "admissions", "scholarships", "interviews"]),
+    .enum(["general", "applications", "academics", "admissions", "scholarships", "interviews"])
+    .default("general"),
   attachmentFile: z.any().optional(),
 });
 export type CreateTipSchema = z.infer<typeof createTipSchema>;
