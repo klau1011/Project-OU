@@ -1,20 +1,16 @@
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
+import { Message } from "ai/react";
 import { Bot, User } from "lucide-react";
 import Image from "next/image";
-
-interface ChatMessageProps {
-  message: {
-    role: "user" | "assistant" | "system";
-    content: string;
-  };
-  isLoading?: boolean;
-}
 
 export default function ChatMessage({
   message: { role, content },
   isLoading = false,
-}: ChatMessageProps) {
+}: {
+  message: Pick<Message, "role" | "content">;
+  isLoading?: boolean;
+}) {
   const isAIMessage = role === "assistant";
   const { user } = useUser();
 

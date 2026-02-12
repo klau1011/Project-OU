@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useState, useMemo } from "react";
 import {
   CheckCircle,
   XCircle,
@@ -13,8 +12,6 @@ import {
   ArrowDown,
   ChevronLeft,
   ChevronRight,
-  List,
-  LayoutGrid,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,10 +86,6 @@ export default function AdmissionsTable({ admissions }: AdmissionsTableProps) {
   const [sortField, setSortField] = useState<SortField>("DecisionDate");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"paginated" | "virtual">("paginated");
-  
-  // Ref for virtualized scrolling container
-  const parentRef = useRef<HTMLDivElement>(null);
 
   // Sort data
   const sortedData = useMemo(() => {
@@ -130,23 +123,12 @@ export default function AdmissionsTable({ admissions }: AdmissionsTableProps) {
     return sorted;
   }, [admissions, sortField, sortDirection]);
 
-  // Virtualizer for "view all" mode
-  const rowVirtualizer = useVirtualizer({
-    count: sortedData.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 56, // Estimated row height
-    overscan: 10,
-  });
-
   // Pagination
   const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return sortedData.slice(start, start + ITEMS_PER_PAGE);
   }, [sortedData, currentPage]);
-
-  // Data to render based on view mode
-  const displayData = viewMode === "paginated" ? paginatedData : sortedData;
 
   // Reset page when sort changes
   const handleSort = (field: SortField) => {
@@ -195,186 +177,91 @@ export default function AdmissionsTable({ admissions }: AdmissionsTableProps) {
     );
   }
 
-  // Row renderer for both modes
-  const renderRow = (admission: AdmissionEntry) => (
-    <TableRow key={admission.id}>
-      <TableCell>
-        <div className="font-medium line-clamp-1">
-          {admission.Program}
-        </div>
-        {admission.OUACCode && (
-          <span className="text-xs text-muted-foreground">
-            {admission.OUACCode}
-          </span>
-        )}
-      </TableCell>
-      <TableCell>
-        <span className="line-clamp-1 text-muted-foreground">
-          {admission.School}
-        </span>
-      </TableCell>
-      <TableCell className="text-center">
-        <span
-          className={`font-semibold ${getAverageColor(admission.Average)}`}
-        >
-          {admission.Average.toFixed(1)}%
-        </span>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center justify-center gap-1.5">
-          {getDecisionIcon(admission.Decision)}
-          <span className="hidden sm:inline text-xs capitalize">
-            {admission.Decision || "—"}
-          </span>
-        </div>
-      </TableCell>
-      <TableCell className="text-center text-muted-foreground hidden md:table-cell">
-        {formatDate(admission.DecisionDate)}
-      </TableCell>
-      <TableCell className="text-right hidden lg:table-cell">
-        {admission.Scholarship ? (
-          <Badge
-            variant="secondary"
-            className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-          >
-            <DollarSign className="w-3 h-3" />
-            {admission.Scholarship.toLocaleString()}
-          </Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-      </TableCell>
-    </TableRow>
-  );
-
   return (
     <div className="space-y-4">
-      {/* View mode toggle - only show if there's enough data */}
-      {sortedData.length > ITEMS_PER_PAGE && (
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-sm text-muted-foreground">View:</span>
-          <div className="flex rounded-lg border p-0.5">
-            <Button
-              variant={viewMode === "paginated" ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2"
-              onClick={() => setViewMode("paginated")}
-            >
-              <LayoutGrid className="w-4 h-4 mr-1" />
-              Pages
-            </Button>
-            <Button
-              variant={viewMode === "virtual" ? "secondary" : "ghost"}
-              size="sm"
-              className="h-7 px-2"
-              onClick={() => setViewMode("virtual")}
-            >
-              <List className="w-4 h-4 mr-1" />
-              All ({sortedData.length.toLocaleString()})
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {viewMode === "virtual" ? (
-        // Virtualized scrolling view
-        <div 
-          ref={parentRef}
-          className="rounded-lg border overflow-auto"
-          style={{ height: "600px" }}
-        >
-          <Table className="min-w-[600px]">
-            <TableHeader className="sticky top-0 bg-background z-10">
-              <TableRow className="bg-muted/50">
-                <SortableHeader field="Program">Program</SortableHeader>
-                <SortableHeader field="School">School</SortableHeader>
-                <SortableHeader field="Average" className="text-center">
-                  Avg
-                </SortableHeader>
-                <SortableHeader field="Decision" className="text-center">
-                  Decision
-                </SortableHeader>
-                <SortableHeader
-                  field="DecisionDate"
-                  className="text-center hidden md:table-cell"
-                >
-                  Date
-                </SortableHeader>
-                <SortableHeader
-                  field="Scholarship"
-                  className="text-right hidden lg:table-cell"
-                >
-                  Scholarship
-                </SortableHeader>
+      <div className="rounded-lg border overflow-x-auto">
+        <Table className="min-w-[600px]">
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <SortableHeader field="Program">Program</SortableHeader>
+              <SortableHeader field="School">School</SortableHeader>
+              <SortableHeader field="Average" className="text-center">
+                Avg
+              </SortableHeader>
+              <SortableHeader field="Decision" className="text-center">
+                Decision
+              </SortableHeader>
+              <SortableHeader
+                field="DecisionDate"
+                className="text-center hidden md:table-cell"
+              >
+                Date
+              </SortableHeader>
+              <SortableHeader
+                field="Scholarship"
+                className="text-right hidden lg:table-cell"
+              >
+                Scholarship
+              </SortableHeader>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((admission) => (
+              <TableRow key={admission.id}>
+                <TableCell>
+                  <div className="font-medium line-clamp-1">
+                    {admission.Program}
+                  </div>
+                  {admission.OUACCode && (
+                    <span className="text-xs text-muted-foreground">
+                      {admission.OUACCode}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <span className="line-clamp-1 text-muted-foreground">
+                    {admission.School}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span
+                    className={`font-semibold ${getAverageColor(admission.Average)}`}
+                  >
+                    {admission.Average.toFixed(1)}%
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-center gap-1.5">
+                    {getDecisionIcon(admission.Decision)}
+                    <span className="hidden sm:inline text-xs capitalize">
+                      {admission.Decision || "—"}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-center text-muted-foreground hidden md:table-cell">
+                  {formatDate(admission.DecisionDate)}
+                </TableCell>
+                <TableCell className="text-right hidden lg:table-cell">
+                  {admission.Scholarship ? (
+                    <Badge
+                      variant="secondary"
+                      className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                    >
+                      <DollarSign className="w-3 h-3" />
+                      {admission.Scholarship.toLocaleString()}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              <tr style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                <td colSpan={6} style={{ padding: 0, position: "relative" }}>
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const admission = sortedData[virtualRow.index];
-                    return (
-                      <div
-                        key={admission.id}
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${virtualRow.start}px)`,
-                        }}
-                      >
-                        <Table>
-                          <TableBody>
-                            {renderRow(admission)}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    );
-                  })}
-                </td>
-              </tr>
-            </TableBody>
-          </Table>
-        </div>
-      ) : (
-        // Paginated view
-        <div className="rounded-lg border overflow-x-auto">
-          <Table className="min-w-[600px]">
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <SortableHeader field="Program">Program</SortableHeader>
-                <SortableHeader field="School">School</SortableHeader>
-                <SortableHeader field="Average" className="text-center">
-                  Avg
-                </SortableHeader>
-                <SortableHeader field="Decision" className="text-center">
-                  Decision
-                </SortableHeader>
-                <SortableHeader
-                  field="DecisionDate"
-                  className="text-center hidden md:table-cell"
-                >
-                  Date
-                </SortableHeader>
-                <SortableHeader
-                  field="Scholarship"
-                  className="text-right hidden lg:table-cell"
-                >
-                  Scholarship
-                </SortableHeader>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.map(renderRow)}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-      {/* Pagination - only show in paginated mode */}
-      {viewMode === "paginated" && totalPages > 1 && (
+      {/* Pagination */}
+      {totalPages > 1 && (
         <div className="flex items-center justify-between px-2">
           <p className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-

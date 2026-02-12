@@ -75,7 +75,7 @@ export default function TipsPageClient({ tips }: TipsPageClientProps) {
   const filteredTips = useMemo(() => {
     let filtered = categorizedTips;
 
-    // Simple text search filter
+    // Search filter
     if (search.trim()) {
       const searchLower = search.toLowerCase();
       filtered = filtered.filter(tip =>
@@ -114,7 +114,7 @@ export default function TipsPageClient({ tips }: TipsPageClientProps) {
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: tips.length };
     categorizedTips.forEach(tip => {
-      tip.categories.forEach((cat: string) => {
+      tip.categories.forEach(cat => {
         counts[cat] = (counts[cat] || 0) + 1;
       });
     });

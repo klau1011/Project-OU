@@ -2,7 +2,7 @@ import AdmissionsTable from "@/components/Admissions/AdmissionsTable";
 import Search from "@/components/ui/search";
 import { Badge } from "@/components/ui/badge";
 import { School2, TrendingUp } from "lucide-react";
-import getAdmissions from "./hooks/useAdmissions";
+import useAdmissions from "./hooks/useAdmissions";
 
 
 export interface SearchParamsInterface {
@@ -18,7 +18,7 @@ export default async function Page({
   const query = searchParams?.query?.trim() ?? "";
   const university = searchParams?.university ?? "all";
 
-  const { filteredAdmissions, totalAverage } = await getAdmissions({
+  const { filteredAdmissions, totalAverage } = await useAdmissions({
     query,
     university,
   });

@@ -5,8 +5,6 @@ import Navbar from "@/components/Navbar/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import FloatingChatbot from "@/components/Chatbot/FloatingChatbot";
-import QueryProvider from "@/components/QueryProvider";
-import { Toaster } from "sonner";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -44,14 +42,11 @@ export default function RootLayout({
             enableSystem 
             disableTransitionOnChange
           >
-            <QueryProvider>
-              <Navbar />
-              <main className="animate-fade-in">
-                {children}
-              </main>
-              <FloatingChatbot />
-              <Toaster richColors closeButton position="bottom-right" />
-            </QueryProvider>
+            <Navbar />
+            <main className="animate-fade-in">
+              {children}
+            </main>
+            <FloatingChatbot />
           </ThemeProvider>
         </body>
       </html>
