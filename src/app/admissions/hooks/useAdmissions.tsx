@@ -7,7 +7,7 @@ import { filterOutliersAndSingleEntrySchools } from "@/lib/admissions";
 const CACHE_KEY = "allAdmissions";
 const CACHE_TTL = 60 * 60 * 24 * 7; // 1 week in seconds
 
-const useAdmissions = async ({ query, university }: {
+const getAdmissions = async ({ query, university }: {
   query: string;
   university: string;
 }) => {
@@ -71,4 +71,4 @@ const useAdmissions = async ({ query, university }: {
   return { filteredAdmissions, totalAverage };
 };
 
-export default useAdmissions;
+export default getAdmissions;
