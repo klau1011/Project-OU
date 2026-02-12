@@ -4,6 +4,7 @@ import { redis } from "@/lib/db/redis";
 import openai, { getEmbedding } from "@/lib/openai";
 import { auth } from "@clerk/nextjs";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import { ChatCompletionMessage } from "openai/resources/index.mjs";
 
 // Rate limiting configuration
 const RATE_LIMIT_MAX_REQUESTS = 20; // Max requests per window
